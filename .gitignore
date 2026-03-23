@@ -1,0 +1,11 @@
+.env
+!.env.example
+
+backend/data/
+backend/target/
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+*.log
+
+Case Eng full-stack JR.pdf

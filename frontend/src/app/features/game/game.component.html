@@ -1,0 +1,103 @@
+<div class="decode">
+  @if (!gameCode() && !loading()) {
+    <p class="error-message">Erro ao carregar partida.</p>
+    <a routerLink="/dashboard" class="btn btn-secondary">Voltar</a>
+  } @else if (loading() && !gameCode()) {
+    <p>Iniciando partida...</p>
+  } @else if (gameCode()) {
+  <div class="hud">
+    <div class="hud-left">
+      <div class="hud-brand">
+        <span class="hud-logo-bar" aria-hidden="true"></span>
+        <h2 class="hud-title">
+          MASTER<span class="hud-accent">MIND</span>
+        </h2>
+      </div>
+      <p class="hud-id">ID DA PARTIDA: {{ gameCode() }}</p>
+    </div>
+    <div class="hud-actions">
+      <a routerLink="/dashboard" class="hud-btn">Dashboard</a>
+      @if (!gameOver()) {
+        <button type="button" class="hud-btn danger" (click)="forfeit()">Desistir</button>
+      }
+    </div>
+  </div>
+
+  @if (gameOver()) {
+    <div class="result-banner" [class.won]="status() === 'won'" [class.lost]="status() === 'lost'">
+      {{ status() === 'won' ? 'Parabéns! Você acertou a combinação.' : 'Fim de jogo. Você esgotou as 10 tentativas.' }}
+    </div>
+    <div class="result-actions">
+      <a routerLink="/difficulty" class="again-btn">Jogar Novamente</a>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <p class="error-message">{{ errorMessage() }}</p>
+  }
+
+  <div class="deck">
+    <div class="rows">
+      @for (row of rows(); track $index; let i = $index) {
+        <div class="row" [class.active]="currentAttempt() === i && !gameOver()" [class.done]="getFeedbackForRow(i) !== null">
+          <span class="row-n">{{ (i + 1).toString().padStart(2, '0') }}</span>
+
+          <div class="slots">
+            @for (slot of row.guess; track $index; let j = $index) {
+              <button
+                type="button"
+                class="slot"
+                [class.filled]="slot"
+                [style.background]="slot ? 'var(--color-' + slot + ')' : undefined"
+                (click)="currentAttempt() === i && !gameOver() && setSlot(j, nextColor(slot, i))"
+                [title]="slot ? colorLabels[slot] : 'Clique para escolher'"
+              >
+                @if (!slot && currentAttempt() === i && !gameOver()) { <span class="q">?</span> }
+              </button>
+            }
+          </div>
+
+          <div class="dots">
+            @for (k of dotIndices(); track k) {
+              <span class="dot" [class.filled]="getFeedbackForRow(i) !== null && k <= getFeedbackForRow(i)!"></span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (!gameOver()) {
+      <div class="control">
+        <p class="control-title">Selecione a sequência</p>
+
+        <div class="palette">
+          @for (c of availableColors(); track c) {
+            <button
+              type="button"
+              class="pbtn"
+              [style.background]="'var(--color-' + c + ')'"
+              (click)="fillNextSlot(c)"
+              [title]="colorLabels[c]"
+            ></button>
+          }
+        </div>
+
+        <button type="button" class="confirm" [disabled]="!canSubmit() || loading()" (click)="submitAttempt()">
+          {{ loading() ? 'Enviando...' : 'Confirmar tentativa' }}
+        </button>
+      </div>
+    }
+
+    @if (answer(); as key) {
+      <div class="answer">
+        <p class="answer-title">Gabarito desta partida</p>
+        <div class="answer-pegs">
+          @for (c of key; track $index) {
+            <span class="apeg" [style.background]="'var(--color-' + c + ')'" [title]="colorLabels[c]"></span>
+          }
+        </div>
+      </div>
+    }
+  </div>
+  }
+</div>

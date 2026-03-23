@@ -1,0 +1,156 @@
+<div class="auth-shell">
+  <div class="auth-bg">
+    <div class="auth-noise"></div>
+    <div class="auth-orb orb-1"></div>
+    <div class="auth-orb orb-2"></div>
+  </div>
+
+  <div class="auth-wrap">
+    <div class="auth-card" @cardEnter>
+      <div class="auth-head" [@modeSwap]="isLogin ? 'login' : 'register'">
+        @if (isLogin) {
+          <div class="title-block">
+            <div class="logo-row">
+              <span class="logo-bar" aria-hidden="true"></span>
+              <span class="logo-text">MASTER<span class="logo-accent">MIND</span></span>
+            </div>
+            <p class="kicker">ACESSO AO DASHBOARD</p>
+          </div>
+        } @else {
+          <div class="title-block">
+            <h2 class="register-title">Novo Registro</h2>
+            <div class="accent-bar"></div>
+          </div>
+        }
+      </div>
+
+      <form class="auth-form" [formGroup]="form" (ngSubmit)="onSubmit()" [@modeSwap]="isLogin ? 'login' : 'register'">
+        <div class="field">
+          <label class="field-label" for="username">
+            {{ isLogin ? 'Usuário ou e-mail' : 'Nome de usuário' }}
+          </label>
+          <input
+            id="username"
+            type="text"
+            formControlName="username"
+            class="field-input"
+            [placeholder]="isLogin ? 'usuário ou e-mail' : 'Informe seu nome de usuário'"
+            autocomplete="username"
+          />
+          @if (form.get('username')?.invalid && form.get('username')?.touched) {
+            <div class="field-error">
+              {{ isLogin ? 'Campo obrigatório' : 'Campo obrigatório (mín. 2 caracteres)' }}
+            </div>
+          }
+        </div>
+
+        @if (!isLogin) {
+          <div class="field">
+            <label class="field-label" for="email">E-mail</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              class="field-input"
+              placeholder="Informe seu e-mail"
+              autocomplete="email"
+            />
+            @if (form.get('email')?.invalid && form.get('email')?.touched) {
+              <div class="field-error">E-mail inválido ou obrigatório</div>
+            }
+          </div>
+        }
+
+        <div class="field">
+          <div class="label-row">
+            <label class="field-label" for="password">Senha</label>
+            @if (isLogin) {
+              <a routerLink="/recuperar-senha" class="forgot-link">Esqueci a senha</a>
+            }
+          </div>
+          <div class="password-row">
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              class="field-input"
+              placeholder="••••••••"
+              [autocomplete]="isLogin ? 'current-password' : 'new-password'"
+              maxlength="16"
+            />
+            <button
+              type="button"
+              class="eye-btn"
+              (click)="togglePassword()"
+              [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+            >
+              @if (showPassword()) {
+                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              } @else {
+                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              }
+            </button>
+          </div>
+          @if (form.get('password')?.invalid && form.get('password')?.touched) {
+            <div class="field-error">
+              @if (form.get('password')?.hasError('minlength')) {
+                Mínimo 6 caracteres
+              } @else if (form.get('password')?.hasError('maxlength')) {
+                Máximo 16 caracteres
+              } @else {
+                Senha inválida
+              }
+            </div>
+          }
+        </div>
+
+        @if (!isLogin) {
+          <div class="field">
+            <label class="field-label" for="securityAnswer">Pergunta de segurança</label>
+            <p class="security-hint">Qual o nome do seu primeiro animal de estimação?</p>
+            <input
+              id="securityAnswer"
+              type="text"
+              formControlName="securityAnswer"
+              class="field-input"
+              placeholder="Sua resposta (usada para recuperar a senha)"
+              autocomplete="off"
+            />
+            @if (form.get('securityAnswer')?.invalid && form.get('securityAnswer')?.touched) {
+              <div class="field-error">Resposta obrigatória (até 200 caracteres)</div>
+            }
+          </div>
+        }
+
+        @if (errorMessage) {
+          <div class="api-error">{{ errorMessage }}</div>
+        }
+
+        <button
+          type="submit"
+          class="cta"
+          [class.cta-register]="!isLogin"
+          [disabled]="loading"
+        >
+          {{ loading ? 'Aguarde...' : (isLogin ? 'Entrar' : 'Cadastrar no sistema') }}
+        </button>
+      </form>
+
+      <div class="auth-foot">
+        <button type="button" class="swap" (click)="toggleMode()">
+          @if (isLogin) {
+            Ainda não tem acesso? <span class="swap-accent">Criar conta</span>
+          } @else {
+            Já tenho conta <span class="swap-accent">Fazer login</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
