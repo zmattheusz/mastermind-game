@@ -6,12 +6,14 @@ public class RankingEntry {
     private String username;
     private Integer bestScore;
     private Long bestScoreAt;
+    private Long bestDurationSeconds;
 
-    public RankingEntry(int position, String username, Integer bestScore, Long bestScoreAt) {
+    public RankingEntry(int position, String username, Integer bestScore, Long bestScoreAt, Long bestDurationSeconds) {
         this.position = position;
         this.username = username;
         this.bestScore = (bestScore != null && bestScore > 0 ? bestScore : null);
         this.bestScoreAt = bestScoreAt;
+        this.bestDurationSeconds = bestDurationSeconds;
     }
 
     public int getPosition() {
@@ -28,5 +30,9 @@ public class RankingEntry {
 
     public Long getBestScoreAt() {
         return bestScoreAt;
+    }
+
+    public Long getBestDurationSeconds() {
+        return bestDurationSeconds;
     }
 }

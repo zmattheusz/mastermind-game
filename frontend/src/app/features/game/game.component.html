@@ -15,6 +15,18 @@
       </div>
       <p class="hud-id">ID DA PARTIDA: {{ gameCode() }}</p>
     </div>
+
+    <div class="hud-clock" aria-live="polite">
+      <div class="hud-clock-face" aria-hidden="true">
+        <span class="hud-clock-dot"></span>
+        <span class="hud-clock-hand" [style.transform]="secondHandTurn()"></span>
+      </div>
+      <div class="hud-clock-text">
+        <span class="hud-clock-label">cronômetro</span>
+        <time class="hud-clock-digits">{{ formatClock() }}</time>
+      </div>
+    </div>
+
     <div class="hud-actions">
       <a routerLink="/dashboard" class="hud-btn">Dashboard</a>
       @if (!gameOver()) {

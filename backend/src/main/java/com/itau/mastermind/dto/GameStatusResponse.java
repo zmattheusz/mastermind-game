@@ -13,6 +13,7 @@ public class GameStatusResponse {
     private int attemptCount;
     private Integer finalScore;
     private Long durationSeconds;
+    private Long startedAtEpochMs;
     private List<List<String>> attemptsMatrix;
     private List<Integer> feedbackCounts;
     private List<String> answer;
@@ -87,6 +88,14 @@ public class GameStatusResponse {
 
     public void setDurationSeconds(Long durationSeconds) {
         this.durationSeconds = durationSeconds;
+    }
+
+    public Long getStartedAtEpochMs() {
+        return startedAtEpochMs;
+    }
+
+    public void setStartedAtEpochMs(Long startedAtEpochMs) {
+        this.startedAtEpochMs = startedAtEpochMs;
     }
 
     public List<List<String>> getAttemptsMatrix() {

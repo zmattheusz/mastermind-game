@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,6 +76,7 @@ class GameServiceTest {
         game.setAttemptsMatrix("[]");
         game.setAttemptCount(0);
         game.setStatus(Game.GameStatus.IN_PROGRESS);
+        game.setStartedAt(Instant.now().minusSeconds(30));
 
         when(gameRepository.findByGameCode("abc123")).thenReturn(Optional.of(game));
         when(gameRepository.save(any(Game.class))).thenReturn(game);

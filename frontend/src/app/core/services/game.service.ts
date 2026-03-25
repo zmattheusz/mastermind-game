@@ -26,6 +26,7 @@ export interface GameStatusResponse {
   attemptCount: number;
   finalScore: number | null;
   durationSeconds: number | null;
+  startedAtEpochMs: number | null;
   attemptsMatrix: string[][];
   feedbackCounts?: number[];
   answer?: string[];
@@ -36,6 +37,7 @@ export interface RankingEntry {
   username: string;
   bestScore: number | null;
   bestScoreAt?: number | null;
+  bestDurationSeconds?: number | null;
 }
 
 export interface DifficultyInfo {

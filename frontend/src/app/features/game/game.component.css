@@ -42,10 +42,102 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem 1.25rem;
   padding-bottom: 1rem;
   margin-bottom: 1.2rem;
   border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+.hud-clock {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.75rem 0.45rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(245, 158, 11, 0.22);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.hud-clock-face {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.12), transparent 55%),
+    linear-gradient(160deg, #1e293b 0%, #0f172a 100%);
+  border: 2px solid rgba(245, 158, 11, 0.45);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.hud-clock-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  background: #f59e0b;
+  z-index: 2;
+}
+
+.hud-clock-hand {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 14px;
+  margin: -14px 0 0 -1px;
+  border-radius: 1px;
+  background: linear-gradient(180deg, #fde68a, #f59e0b);
+  transform-origin: 50% 100%;
+  transition: transform 0.12s linear;
+  z-index: 1;
+}
+
+.hud-clock-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 4.5rem;
+}
+
+.hud-clock-label {
+  font-size: 0.52rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.75);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.hud-clock-digits {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  color: rgba(248, 250, 252, 0.96);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+@media (max-width: 640px) {
+  .hud {
+    justify-content: center;
+  }
+  .hud-clock {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+  .hud-left {
+    width: 100%;
+    text-align: center;
+  }
+  .hud-actions {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 .hud-title {

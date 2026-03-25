@@ -56,9 +56,21 @@ Contagem de dias consecutivos com vitória (qualquer dificuldade). Indicador vis
 
 ### Ranking
 
-Ranking por dificuldade, ordenado por desempenho.
+Ranking por dificuldade. Menos tentativas vem primeiro; em empate, vale o tempo da vitória (cronômetro durante a partida — ver atualização abaixo).
 
 ![Ranking por dificuldade](docs/gifs/ranking.gif)
+
+---
+
+## Atualização — 24/03/2026 · Cronômetro
+
+Há um **cronômetro** no topo da tela de jogo, ao lado do ID da partida. Conta o tempo enquanto a rodada está aberta e para quando acaba (vitória, derrota ou desistência), para ficar registrado quanto tempo durou aquela tentativa.
+
+![Cronômetro no cabeçalho da partida](docs/prints/Cronômetro.png)
+
+No **ranking** isso virou regra de desempate. Continua valendo quem usa **menos tentativas**; se duas pessoas empatarem nisso, quem resolveu **mais rápido** sobe. Por isso a tabela ganhou a coluna **Tempo** — é o registro da melhor vitória daquele jogador naquele modo (em minutos e segundos).
+
+![Ranking com tempo para desempate](docs/prints/ranking-cronometro.png)
 
 ---
 

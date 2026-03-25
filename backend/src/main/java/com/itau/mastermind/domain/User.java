@@ -54,6 +54,13 @@ public class User {
     private Integer bestScoreHard = 0;
     private Instant bestScoreAtHard;
 
+    /** Melhor tempo (segundos) na vitória que gerou o bestScore global; desempate com mesma quantidade de tentativas. */
+    private Long bestDurationSecs;
+
+    private Long bestDurationSecsEasy;
+    private Long bestDurationSecsMedium;
+    private Long bestDurationSecsHard;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Game> games = new ArrayList<>();
 
@@ -184,6 +191,38 @@ public class User {
 
     public void setBestScoreAtHard(Instant bestScoreAtHard) {
         this.bestScoreAtHard = bestScoreAtHard;
+    }
+
+    public Long getBestDurationSecs() {
+        return bestDurationSecs;
+    }
+
+    public void setBestDurationSecs(Long bestDurationSecs) {
+        this.bestDurationSecs = bestDurationSecs;
+    }
+
+    public Long getBestDurationSecsEasy() {
+        return bestDurationSecsEasy;
+    }
+
+    public void setBestDurationSecsEasy(Long bestDurationSecsEasy) {
+        this.bestDurationSecsEasy = bestDurationSecsEasy;
+    }
+
+    public Long getBestDurationSecsMedium() {
+        return bestDurationSecsMedium;
+    }
+
+    public void setBestDurationSecsMedium(Long bestDurationSecsMedium) {
+        this.bestDurationSecsMedium = bestDurationSecsMedium;
+    }
+
+    public Long getBestDurationSecsHard() {
+        return bestDurationSecsHard;
+    }
+
+    public void setBestDurationSecsHard(Long bestDurationSecsHard) {
+        this.bestDurationSecsHard = bestDurationSecsHard;
     }
 
     public List<Game> getGames() {

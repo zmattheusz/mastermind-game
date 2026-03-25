@@ -45,7 +45,12 @@ export class GameComponent implements OnInit, OnDestroy {
   gameOver = computed(() => this.status() !== 'playing');
   dotIndices = computed(() => Array.from({ length: this.codeLength() }, (_, i) => i + 1));
 
-  private startTime = 0;
+  /** Segundos decorridos na partida (servidor manda o começo; ao terminar, congela no durationSeconds). */
+  elapsedSeconds = signal(0);
+
+  secondHandTurn = computed(() => `rotate(${this.elapsedSeconds() * 6}deg)`);
+
+  private clockId: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -75,7 +80,9 @@ export class GameComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.stopClock();
+  }
 
   private startNewGame(): void {
     this.loading.set(true);
@@ -87,7 +94,6 @@ export class GameComponent implements OnInit, OnDestroy {
         this.currentAttempt.set(0);
         this.feedbacks.set([]);
         this.status.set('playing');
-        this.startTime = Date.now();
         this.loading.set(false);
         this.router.navigate(['/game', res.gameCode], { replaceUrl: true });
       },
@@ -118,9 +124,45 @@ export class GameComponent implements OnInit, OnDestroy {
         if (res.status === 'WON') this.status.set('won');
         else if (res.status === 'LOST') this.status.set('lost');
         this.answer.set(res.answer ?? null);
+        this.syncClockFromStatus(res);
       },
       error: () => this.errorMessage.set('Partida não encontrada.'),
     });
+  }
+
+  private stopClock(): void {
+    if (this.clockId != null) {
+      clearInterval(this.clockId);
+      this.clockId = null;
+    }
+  }
+
+  private syncClockFromStatus(res: GameStatusResponse): void {
+    this.stopClock();
+    if (res.status === 'IN_PROGRESS' && res.startedAtEpochMs != null) {
+      const startedAt = res.startedAtEpochMs;
+      const tick = () => {
+        const sec = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
+        this.elapsedSeconds.set(sec);
+      };
+      tick();
+      this.clockId = setInterval(tick, 250);
+    } else if (res.durationSeconds != null) {
+      this.elapsedSeconds.set(res.durationSeconds);
+    } else {
+      this.elapsedSeconds.set(0);
+    }
+  }
+
+  formatClock(): string {
+    const t = this.elapsedSeconds();
+    const h = Math.floor(t / 3600);
+    const m = Math.floor((t % 3600) / 60);
+    const s = t % 60;
+    if (h > 0) {
+      return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
 
   currentRow(): RowState {
@@ -173,6 +215,7 @@ export class GameComponent implements OnInit, OnDestroy {
           if (codeVal) {
             this.gameService.getGameStatus(codeVal).subscribe((st) => {
               this.answer.set(st.answer ?? null);
+              this.syncClockFromStatus(st);
             });
           }
         }
@@ -197,6 +240,7 @@ export class GameComponent implements OnInit, OnDestroy {
         if (res.status === 'WON') this.status.set('won');
         else this.status.set('lost');
         this.answer.set(res.answer ?? null);
+        this.syncClockFromStatus(res);
         this.loading.set(false);
       },
       error: (err) => {

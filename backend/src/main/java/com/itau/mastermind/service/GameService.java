@@ -32,6 +32,26 @@ public class GameService {
 
     private record ParametrosDificuldade(int codeLength, List<String> allowedColors, boolean repetitionsAllowed) {}
 
+    /**
+     * Menos tentativas ganha; em empate, menos tempo (segundos) ganha.
+     * Registro antigo sem tempo gravado perde o desempate para quem já tem tempo com as mesmas tentativas.
+     */
+    private static boolean novoRecorde(Integer tentativasAntigas, Long tempoAntigoSegs, int tentativasNaVitória, long tempoNaVitóriaSegs) {
+        if (tentativasAntigas == null || tentativasAntigas == 0) {
+            return true;
+        }
+        if (tentativasNaVitória < tentativasAntigas) {
+            return true;
+        }
+        if (tentativasNaVitória > tentativasAntigas) {
+            return false;
+        }
+        if (tempoAntigoSegs == null) {
+            return true;
+        }
+        return tempoNaVitóriaSegs < tempoAntigoSegs;
+    }
+
     private ParametrosDificuldade parametrosDaDificuldade(Game.GameDifficulty difficulty) {
         if (difficulty == Game.GameDifficulty.EASY) {
             return new ParametrosDificuldade(
@@ -173,30 +193,35 @@ public class GameService {
 
             User user = game.getUser();
             int score = game.getAttemptCount();
+            long durationSec = game.getDurationSeconds() != null ? game.getDurationSeconds() : 0L;
             boolean updated = false;
 
-            if (user.getBestScore() == null || user.getBestScore() == 0 || user.getBestScore() > score) {
+            if (novoRecorde(user.getBestScore(), user.getBestDurationSecs(), score, durationSec)) {
                 user.setBestScore(score);
                 user.setBestScoreAt(finishedAt);
+                user.setBestDurationSecs(durationSec);
                 updated = true;
             }
 
             if (difficulty == Game.GameDifficulty.EASY) {
-                if (user.getBestScoreEasy() == null || user.getBestScoreEasy() == 0 || user.getBestScoreEasy() > score) {
+                if (novoRecorde(user.getBestScoreEasy(), user.getBestDurationSecsEasy(), score, durationSec)) {
                     user.setBestScoreEasy(score);
                     user.setBestScoreAtEasy(finishedAt);
+                    user.setBestDurationSecsEasy(durationSec);
                     updated = true;
                 }
             } else if (difficulty == Game.GameDifficulty.MEDIUM) {
-                if (user.getBestScoreMedium() == null || user.getBestScoreMedium() == 0 || user.getBestScoreMedium() > score) {
+                if (novoRecorde(user.getBestScoreMedium(), user.getBestDurationSecsMedium(), score, durationSec)) {
                     user.setBestScoreMedium(score);
                     user.setBestScoreAtMedium(finishedAt);
+                    user.setBestDurationSecsMedium(durationSec);
                     updated = true;
                 }
             } else if (difficulty == Game.GameDifficulty.HARD) {
-                if (user.getBestScoreHard() == null || user.getBestScoreHard() == 0 || user.getBestScoreHard() > score) {
+                if (novoRecorde(user.getBestScoreHard(), user.getBestDurationSecsHard(), score, durationSec)) {
                     user.setBestScoreHard(score);
                     user.setBestScoreAtHard(finishedAt);
+                    user.setBestDurationSecsHard(durationSec);
                     updated = true;
                 }
             }
@@ -304,6 +329,7 @@ public class GameService {
         dto.setAttemptCount(game.getAttemptCount());
         dto.setFinalScore(game.getFinalScore());
         dto.setDurationSeconds(game.getDurationSeconds());
+        dto.setStartedAtEpochMs(game.getStartedAt() != null ? game.getStartedAt().toEpochMilli() : null);
         dto.setAttemptsMatrix(parseMatrix(game.getAttemptsMatrix()));
         dto.setFeedbackCounts(parseFeedbackCounts(game.getFeedbackCounts()));
         if (game.getStatus() != Game.GameStatus.IN_PROGRESS) {
@@ -330,20 +356,24 @@ public class GameService {
             User u = users.get(i);
             Integer bestScore;
             java.time.Instant bestAtInstant;
+            Long bestDurationSecs;
 
             if (difficulty == Game.GameDifficulty.EASY) {
                 bestScore = u.getBestScoreEasy();
                 bestAtInstant = u.getBestScoreAtEasy();
+                bestDurationSecs = u.getBestDurationSecsEasy();
             } else if (difficulty == Game.GameDifficulty.HARD) {
                 bestScore = u.getBestScoreHard();
                 bestAtInstant = u.getBestScoreAtHard();
+                bestDurationSecs = u.getBestDurationSecsHard();
             } else {
                 bestScore = u.getBestScoreMedium();
                 bestAtInstant = u.getBestScoreAtMedium();
+                bestDurationSecs = u.getBestDurationSecsMedium();
             }
 
             Long bestAt = bestAtInstant != null ? bestAtInstant.toEpochMilli() : null;
-            result.add(new RankingEntry(i + 1, u.getUsername(), bestScore, bestAt));
+            result.add(new RankingEntry(i + 1, u.getUsername(), bestScore, bestAt, bestDurationSecs));
         }
 
         return result;
@@ -358,7 +388,8 @@ public class GameService {
                 "A validação retorna apenas a quantidade de posições corretas (cor e posição certas).",
                 "No modo Fácil, as cores não podem se repetir na tentativa; no modo Médio e Difícil, a repetição é permitida.",
                 "Você tem no máximo " + maxAttempts + " tentativas para acertar a combinação.",
-                "Ao final da partida (vitória, derrota ou desistência) o gabarito é exibido para conferência."
+                "Ao final da partida (vitória, derrota ou desistência) o gabarito é exibido para conferência.",
+                "No ranking, quem acerta com menos tentativas vem primeiro; se a quantidade for igual, conta o tempo da partida (quem foi mais rápido fica na frente)."
         );
 
         return new InstrucoesJogoResponse(steps, difficulties);

@@ -49,8 +49,9 @@ import { AuthService } from '../../core/services/auth.service';
               <tr>
                 <th>Posição</th>
                 <th>Usuário</th>
-                <th>Melhor pontuação</th>
-                <th>Data</th>
+                <th>Tentativas</th>
+                <th>Tempo</th>
+                <th>Registro</th>
               </tr>
             </thead>
             <tbody>
@@ -69,6 +70,7 @@ import { AuthService } from '../../core/services/auth.service';
                       {{ entry.bestScore != null ? (entry.bestScore + ' tentativas') : '-' }}
                     </span>
                   </td>
+                  <td class="mono tempo">{{ formatDuration(entry.bestDurationSeconds ?? null) }}</td>
                   <td class="date">{{ formatBestScoreAt(entry.bestScoreAt ?? null) }}</td>
                 </tr>
               }
@@ -233,6 +235,7 @@ import { AuthService } from '../../core/services/auth.service';
     }
     .pill-first { background: #f59e0b; color: #050a14; }
 
+    .tempo { color: rgba(226,232,240,0.88); }
     .date { color: rgba(148,163,184,0.65); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 
     .stats {
@@ -337,5 +340,17 @@ export class RankingComponent implements OnInit {
       year: 'numeric',
     }).format(d);
     return `${time} - ${date}`;
+  }
+
+  formatDuration(totalSeconds: number | null): string {
+    if (totalSeconds == null || totalSeconds < 0) return '—';
+    const t = Math.floor(totalSeconds);
+    const h = Math.floor(t / 3600);
+    const m = Math.floor((t % 3600) / 60);
+    const s = t % 60;
+    if (h > 0) {
+      return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
 }
